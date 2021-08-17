@@ -4,11 +4,8 @@
 #SCRIPT=$(readlink -f "$0")
 SCRIPT=$(grealpath .)
 SPATH=$(grealpath .)
-echo "SPATH: $SPATH"
 CAPATH=$SPATH/root/ca
-echo "CAPATH: $CAPATH"
 IMPATH=$CAPATH/intermediate
-echo "IMPATH: $IMPATH"
 
 # http://ocsp-res.libx509crc.test:49200 http://localhost:49200
 # http://crl.libx509crc.test:49201 http://localhost:49201
@@ -17,7 +14,6 @@ echo "IMPATH: $IMPATH"
 if [ "$1" == "setup" ]; then
 
     # create the directory for the root CA
-    echo "******"
     mkdir -p $SPATH/root
     mkdir -p $SPATH/root/ca
     mkdir -p $CAPATH/certs $CAPATH/crl $CAPATH/newcerts $CAPATH/private
@@ -27,7 +23,6 @@ if [ "$1" == "setup" ]; then
     touch $CAPATH/index.txt.attr
     echo 1000 > $CAPATH/serial
     cp -f -v $SPATH/root-openssl.cnf $CAPATH/openssl.cnf
-    echo "CAPATH: ${CAPATH} ******"
     gsed -i.bu 's#DIR#'$CAPATH'#g' $CAPATH/openssl.cnf
 
     # generate root key
@@ -59,8 +54,6 @@ if [ "$1" == "setup" ]; then
     cp -f -v $SPATH/intermediate-openssl-noocsp.cnf $IMPATH/openssl-noocsp.cnf
     cp -f -v $SPATH/intermediate-openssl-nocrl.cnf $IMPATH/openssl-nocrl.cnf
     cp -f -v $SPATH/intermediate-openssl-https.cnf $IMPATH/openssl-https.cnf
-    echo "IMPATH: ${IMPATH} ****** \n"
-    's#DIR#'$CAPATH'#g'
     gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl.cnf
     gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl-muststaple.cnf
     gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl-noocsp.cnf
