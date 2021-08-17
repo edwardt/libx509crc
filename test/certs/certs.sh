@@ -1,10 +1,14 @@
 #!/bin/bash 
 
  # Get absolute path to the working dir
-SCRIPT=$(readlink -f "$0")
-SPATH=$(dirname "$SCRIPT")
+#SCRIPT=$(readlink -f "$0")
+SCRIPT=$(grealpath .)
+SPATH=$(grealpath .)
+echo "SPATH: $SPATH"
 CAPATH=$SPATH/root/ca
+echo "CAPATH: $CAPATH"
 IMPATH=$CAPATH/intermediate
+echo "IMPATH: $IMPATH"
 
 # http://ocsp-res.libx509crc.test:49200 http://localhost:49200
 # http://crl.libx509crc.test:49201 http://localhost:49201
@@ -13,16 +17,18 @@ IMPATH=$CAPATH/intermediate
 if [ "$1" == "setup" ]; then
 
     # create the directory for the root CA
-    mkdir $SPATH/root
-    mkdir $SPATH/root/ca
-    mkdir $CAPATH/certs $CAPATH/crl $CAPATH/newcerts $CAPATH/private
+    echo "******"
+    mkdir -p $SPATH/root
+    mkdir -p $SPATH/root/ca
+    mkdir -p $CAPATH/certs $CAPATH/crl $CAPATH/newcerts $CAPATH/private
 
     # create initial files
     touch $CAPATH/index.txt
     touch $CAPATH/index.txt.attr
     echo 1000 > $CAPATH/serial
-    cp $SPATH/root-openssl.cnf $CAPATH/openssl.cnf
-    sed -i s+DIR+$CAPATH+g $CAPATH/openssl.cnf
+    cp -f -v $SPATH/root-openssl.cnf $CAPATH/openssl.cnf
+    echo "CAPATH: ${CAPATH} ******"
+    gsed -i.bu 's#DIR#'$CAPATH'#g' $CAPATH/openssl.cnf
 
     # generate root key
     openssl genrsa -out $CAPATH/private/ca.key.pem 2048
@@ -35,29 +41,31 @@ if [ "$1" == "setup" ]; then
         -out $CAPATH/certs/ca.cert.pem
 
     # Copy the root cert with the name as the hash of the file
-    cp $CAPATH/certs/ca.cert.pem $CAPATH/certs/$(openssl x509 -noout -hash -in $CAPATH/certs/ca.cert.pem).0
+    cp -f -v $CAPATH/certs/ca.cert.pem $CAPATH/certs/$(openssl x509 -noout -hash -in $CAPATH/certs/ca.cert.pem).0
 
     ### Create intermediate pair
 
     # setup intermediate dir
-    mkdir $IMPATH
-    mkdir $IMPATH/certs $IMPATH/crl $IMPATH/csr $IMPATH/newcerts $IMPATH/private
+    mkdir -p $IMPATH
+    mkdir -p $IMPATH/certs $IMPATH/crl $IMPATH/csr $IMPATH/newcerts $IMPATH/private
 
     # setup files
     touch $IMPATH/index.txt
     touch $IMPATH/index.txt.attr
     echo 1000 > $IMPATH/serial
     echo 1000 > $IMPATH/crlnumber
-    cp $SPATH/intermediate-openssl.cnf $IMPATH/openssl.cnf
-    cp $SPATH/intermediate-openssl-muststaple.cnf $IMPATH/openssl-muststaple.cnf
-    cp $SPATH/intermediate-openssl-noocsp.cnf $IMPATH/openssl-noocsp.cnf
-    cp $SPATH/intermediate-openssl-nocrl.cnf $IMPATH/openssl-nocrl.cnf
-    cp $SPATH/intermediate-openssl-https.cnf $IMPATH/openssl-https.cnf
-    sed -i s+DIR+$IMPATH+g $IMPATH/openssl.cnf
-    sed -i s+DIR+$IMPATH+g $IMPATH/openssl-muststaple.cnf
-    sed -i s+DIR+$IMPATH+g $IMPATH/openssl-noocsp.cnf
-    sed -i s+DIR+$IMPATH+g $IMPATH/openssl-nocrl.cnf
-    sed -i s+DIR+$IMPATH+g $IMPATH/openssl-https.cnf
+    cp -f -v $SPATH/intermediate-openssl.cnf $IMPATH/openssl.cnf
+    cp -f -v $SPATH/intermediate-openssl-muststaple.cnf $IMPATH/openssl-muststaple.cnf
+    cp -f -v $SPATH/intermediate-openssl-noocsp.cnf $IMPATH/openssl-noocsp.cnf
+    cp -f -v $SPATH/intermediate-openssl-nocrl.cnf $IMPATH/openssl-nocrl.cnf
+    cp -f -v $SPATH/intermediate-openssl-https.cnf $IMPATH/openssl-https.cnf
+    echo "IMPATH: ${IMPATH} ****** \n"
+    's#DIR#'$CAPATH'#g'
+    gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl.cnf
+    gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl-muststaple.cnf
+    gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl-noocsp.cnf
+    gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl-nocrl.cnf
+    gsed -i.bu 's#DIR#'$IMPATH'#g' $IMPATH/openssl-https.cnf
 
     # generate key
     openssl genrsa -out $IMPATH/private/intermediate.key.pem 2048
