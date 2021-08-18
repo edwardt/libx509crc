@@ -4,6 +4,7 @@
 #define MAIN_SERVER_HOSTNAME "libx509crc.test"
 #define MUSTSTAPLE_SERVER_HOSTNAME "muststaple.libx509crc.test"
 #define NOOCSP_SERVER_HOSTNAME "noocsp.libx509crc.test"
+#define OCSP_SERVER_HOSTNAME "ocsp.libx509crc.test"
 
 /* Cleans and setups the new certificates */
 void setup();

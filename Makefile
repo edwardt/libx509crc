@@ -1,11 +1,14 @@
 CC = gcc
-CFLAGS_DRIVER = -Wall -std=c99 -g -O0 -D_GNU_SOURCE
+#LIBRARY_PATH = $LIBRARY_PATH:/usr/local/opt/openssl@1.1/lib/
+LDFLAGS = "-L/usr/local/opt/openssl@1.1/lib"
+CFLAGS = "-I/usr/local/opt/openssl@1.1/include"
+PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig"
 LDLIBS = -lssl -lcrypto
-
+CFLAGS_DRIVER = -Wall -std=c99 -g -O0 -D_GNU_SOURCE
 CFLAGS_LIB = -Wall -std=c99 -D_GNU_SOURCE -fPIC
 
 CFLAGS_TEST = -Wall -std=c99 -D_GNU_SOURCE -fprofile-arcs -ftest-coverage -g -O0 -pthread
-LDLIBS_TEST = -lcunit -lssl -lcrypto
+LDLIBS_TEST = -lcunit -lssl -lcrypto 
 
 vpath % src/driver
 vpath % src/lib
@@ -16,7 +19,7 @@ LIB_SRCS = http.c ocsp.c crl.c ocsp_stapling.c lib.c ocsp_shared.c transparency.
 LIB_HEADERS = http.h crl.h lib.h validators.h errs.h
 LIB_NAME = libx509crc.so
 
-INSTALL_DIR = /usr/local
+INSTALL_DIR = /Users/etsang/dev/src/github.com/danielcary/libx509crc
 
 DRIVER_SRCS = main.c ssl_connect.c
 DRIVER_HEADERS = ssl_connect.h
@@ -25,11 +28,11 @@ TEST_SRCS = run_tests.c transparency_tests.c servers.c lib_tests.c ocsp_res.c ce
 
 #### DRIVER
 driverprogram: $(DRIVER_SRCS) $(LIB_SRCS) #$(DRIVER_HEADERS) $(LIB_HEADERS)
-	$(CC) $(CFLAGS_DRIVER) $^ -o $@ $(LDLIBS)
+	$(CC) $(CFLAGS) $(CFLAGS_DRIVER) $^ -o $@ $(LDLIBS)
 
 #### LIBRARY
 lib: $(LIB_SRCS) #$(LIB_HEADERS)
-	$(CC) $(CFLAGS_LIB) $^ -o $(LIB_NAME) -shared
+	$(CC) $(CFLAGS) $(CFLAGS_LIB) $^ -o $(LIB_NAME) -shared
 
 #### Installs the header files in /usr/local/include/libx509crc
 install: lib
@@ -44,7 +47,7 @@ install: lib
 	chmod 644 $(INSTALL_DIR)/include/libx509crc/transparency.h
 	cp $(LIB_NAME) $(INSTALL_DIR)/lib/$(LIB_NAME)
 	chmod 755 $(INSTALL_DIR)/lib/$(LIB_NAME)
-    
+
 
 #### TEST
 run_tests: clean tests driverprogram
@@ -54,8 +57,8 @@ run_tests: clean tests driverprogram
 	gcovr -r .
 
 tests: $(LIB_SRCS) $(TEST_SRCS)
-	$(CC) $(CFLAGS_TEST) $^ -o tests $(LDLIBS_TEST)
-    
+	$(CC) $(CFLAGS) $(CFLAGS_TEST) $^ -o tests $(LDLIBS_TEST)
+
 
 clean:
 	rm -f *.o
