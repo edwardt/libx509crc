@@ -104,6 +104,15 @@ static int load_certs(SSL_CTX *ctx, const char *server_name)
 
     no_fullchain = false;
 
+    if(SSL_CTX_use_PrivateKey_file(ctx, (const char*)key_filepath, SSL_FILETYPE_PEM) !=1 ){
+        printf("SSL_CTX_use_PrivateKey_file error: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
+
+
+    if(SSL_CTX_check_private_key(ctx) !=1 ){
+        printf("SSL_CTX_check_private_key error: %s", ERR_error_string(ERR_get_error(), NULL));
+    }
+
     return ret 
         && SSL_CTX_use_PrivateKey_file(ctx, (const char*)key_filepath, SSL_FILETYPE_PEM) 
         && SSL_CTX_check_private_key(ctx);

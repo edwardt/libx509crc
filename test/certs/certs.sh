@@ -98,6 +98,13 @@ if [ "$1" == "setup" ]; then
         -in $IMPATH/csr/ocsp-res.libx509crc.test.csr.pem \
         -out $IMPATH/certs/ocsp-res.libx509crc.test.cert.pem
 
+    openssl ca \
+        -config $IMPATH/openssl-muststaple.cnf \
+        -subj '/CN=muststaple.libx509crc.test.test/OU=Team 13/O=NCSU Spring 2018 CSC 492/ST=North Carolina/L=Raleigh/C=US' \
+        -extensions ocsp -days 365 -notext -batch -md sha256 \
+        -in $IMPATH/csr/muststaple.libx509crc.test.csr.pem \
+        -out $IMPATH/certs/muststaple.libx509crc.test.cert.pem
+s
     # add servers
     $SPATH/certs.sh add
     $SPATH/certs.sh add-muststaple
