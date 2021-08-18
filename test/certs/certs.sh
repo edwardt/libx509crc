@@ -83,6 +83,8 @@ if [ "$1" == "setup" ]; then
     # gen private key
     openssl genrsa -out $IMPATH/private/ocsp-res.libx509crc.test.key.pem 2048
 
+    openssl genrsa -out $IMPATH/private/muststaple.libx509crc.test.key.pem 2048
+
     # gen csr
     openssl req \
         -config $IMPATH/openssl.cnf  \
