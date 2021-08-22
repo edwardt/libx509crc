@@ -12,6 +12,67 @@
 #include "errs.h"
 #include "utils/http.h"
 
+/**
+ * RAII class for openssl OCCSP_REQUEST allocations.
+ */
+class ScopedOpenssl_OCSP_REQUEST {
+    public:
+        explicit ScopedOpenssl_OCSP_REQUEST(OCSP_REQUEST *req) : _p(req)
+        {
+            if (unlikely(req == nullptr))
+                throw std::bad_alloc();
+        }
+        ~ScopedOpenssl_OCSP_REQUEST()
+        {
+            OCSP_REQUEST_free(_req);
+        }
+        OCSP_REQUEST *getRequest() const { return _req; }
+    private:
+        OCSP_REQUEST *_req;
+        //IS_NOT_COPYABLE(ScopedOpenssl_OCSP_REQUEST);
+};
+
+/**
+ * RAII class for openssl OCSP_RESPONSE allocations.
+ */
+class ScopedOpenssl_OCSP_RESPONSE {
+    public:
+        explicit ScopedOpenssl_OCSP_RESPONSE(OCSP_RESPONSE *rsp) : _p(resp)
+        {
+            if (unlikely(resp == nullptr))
+                throw std::bad_alloc();
+        }
+        ~ScopedOpenssl_OCSP_RESPONSE()
+        {
+            OCSP_RESPONSE_free(_resp);
+        }
+        OCSP_RESPONSE *getResponse() const { return _resp; }
+    private:
+        OCSP_RESPONSE *_resp;
+        //IS_NOT_COPYABLE(ScopedOpenssl_OCSP_RESPONSE);
+};
+
+/**
+ * RAII class for openssl X509 Email allocations.
+ */
+class ScopedOpenssl_X509_email {
+    public:
+        explicit ScopedOpenssl_OCSP_RESPONSE(OCSP_RESPONSE *rsp) : _p(resp)
+        {
+            if (unlikely(resp == nullptr))
+                throw std::bad_alloc();
+        }
+        ~ScopedOpenssl_OCSP_RESPONSE()
+        {
+            OCSP_RESPONSE_free(_resp);
+        }
+        OCSP_RESPONSE *getResponse() const { return _resp; }
+    private:
+        OCSP_RESPONSE *_resp;
+        //IS_NOT_COPYABLE(ScopedOpenssl_OCSP_RESPONSE);   
+
+}
+
 int validate_ocsp(SSL *ssl, ASN1_TIME** next_update)
 {
     int retval = 0;
@@ -63,6 +124,8 @@ int validate_ocsp_by_cert(X509 *cert, STACK_OF(X509) *chain, X509_STORE *store, 
     char *host = NULL, *schema = NULL, *port = NULL, *path = NULL;
 
     /* Check if we're allowed to perform an OCSP check */
+    // becasue this is check by cert not SSL onnection
+    // there is no concept of stapling for cert only checking.
     if(must_staple(cert)) {
         retval = ERR_OCSP_MUST_STAPLE;
         goto end;
@@ -121,6 +184,8 @@ int validate_ocsp_by_cert(X509 *cert, STACK_OF(X509) *chain, X509_STORE *store, 
 
     /* Create OCSP request */
     ocsp_req_ctx = OCSP_sendreq_new(ocsp_bio, path, NULL, 0);
+    ScopedOpenssl_OCSP_REQUEST ocsp_req_ctx(CSP_sendreq_new(ocsp_bio, path, NULL, 0));
+
     if(!ocsp_req_ctx) {
         retval = ERR_OCSP_NO_REQUEST_CTX;
         goto end;
