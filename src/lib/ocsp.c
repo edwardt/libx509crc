@@ -30,7 +30,7 @@ class ScopedOpenssl_OCSP_REQUEST {
     private:
         OCSP_REQUEST *_req;
         //IS_NOT_COPYABLE(ScopedOpenssl_OCSP_REQUEST);
-};
+}
 
 /**
  * RAII class for openssl OCSP_RESPONSE allocations.
@@ -50,7 +50,7 @@ class ScopedOpenssl_OCSP_RESPONSE {
     private:
         OCSP_RESPONSE *_resp;
         //IS_NOT_COPYABLE(ScopedOpenssl_OCSP_RESPONSE);
-};
+}
 
 /**
  * RAII class for openssl X509 Email allocations.
