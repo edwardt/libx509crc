@@ -76,10 +76,10 @@ class ScopedOpenssl_X509_email {
 int validate_ocsp(SSL *ssl, ASN1_TIME** next_update)
 {
     int retval = 0;
-    X509 *cert = NULL;
-    STACK_OF(X509) *chain = NULL;
-    SSL_CTX *ssl_ctx = NULL;
-    X509_STORE *store = NULL;
+    X509 *cert = nullptr;
+    STACK_OF(X509) *chain = nullptr;
+    SSL_CTX *ssl_ctx = nullptr;
+    X509_STORE *store = nullptr;
 
     /* Get the server's cert */
     cert = SSL_get_peer_certificate(ssl);
@@ -115,13 +115,13 @@ end:
 int validate_ocsp_by_cert(X509 *cert, STACK_OF(X509) *chain, X509_STORE *store, ASN1_TIME** next_update)
 {
     int retval = -1;
-    BIO *ocsp_bio = NULL;
-    SSL_CTX *ocsp_ssl_ctx = NULL;
-    OCSP_REQ_CTX *ocsp_req_ctx = NULL;
-    OCSP_RESPONSE *rsp = NULL;
-    OCSP_REQUEST *req = NULL;
-    STACK_OF(OPENSSL_STRING) *emlist = NULL;
-    char *host = NULL, *schema = NULL, *port = NULL, *path = NULL;
+    BIO *ocsp_bio = nullptr;
+    SSL_CTX *ocsp_ssl_ctx = nullptr;
+    OCSP_REQ_CTX *ocsp_req_ctx = nullptr;
+    OCSP_RESPONSE *rsp = nullptr;
+    OCSP_REQUEST *req = nullptr;
+    STACK_OF(OPENSSL_STRING) *emlist = nullptr;
+    char *host = nullptr, *schema = nullptr, *port = nullptr, *path = nullptr;
 
     /* Check if we're allowed to perform an OCSP check */
     // becasue this is check by cert not SSL onnection
@@ -132,7 +132,7 @@ int validate_ocsp_by_cert(X509 *cert, STACK_OF(X509) *chain, X509_STORE *store, 
     }
 
     /* Get the issuer cert from the cert chain */
-    X509 *issuer = NULL;
+    X509 *issuer = nullptr;
     if(sk_X509_num(chain) >= 2) {
         issuer = sk_X509_value(chain, 1);
     }
@@ -151,7 +151,7 @@ int validate_ocsp_by_cert(X509 *cert, STACK_OF(X509) *chain, X509_STORE *store, 
     }
 
     OCSP_request_add0_id(req, id);
-    OCSP_request_add1_nonce(req, NULL, -1);
+    OCSP_request_add1_nonce(req, nullptr, -1);
 
     /* Log OCSP request */
     OCSP_REQUEST_print(X509CRC_log_info_bio(), req, 0);
@@ -183,8 +183,8 @@ int validate_ocsp_by_cert(X509 *cert, STACK_OF(X509) *chain, X509_STORE *store, 
     }
 
     /* Create OCSP request */
-    ocsp_req_ctx = OCSP_sendreq_new(ocsp_bio, path, NULL, 0);
-    ScopedOpenssl_OCSP_REQUEST ocsp_req_ctx(CSP_sendreq_new(ocsp_bio, path, NULL, 0));
+    ocsp_req_ctx = OCSP_sendreq_new(ocsp_bio, path, nullptr, 0);
+    ScopedOpenssl_OCSP_REQUEST ocsp_req_ctx(CSP_sendreq_new(ocsp_bio, path, nullptr, 0));
 
     if(!ocsp_req_ctx) {
         retval = ERR_OCSP_NO_REQUEST_CTX;
